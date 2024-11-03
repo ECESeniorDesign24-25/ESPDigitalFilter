@@ -9,17 +9,25 @@ int LED = 33;           // Specify output analog pin with indicator LED
 const int n = 4;   // number of past input and output samples to buffer; change this to match order of your filter
 int m = 10; // number of past outputs to average for hysteresis
  
-float den[] = {1.0e-3*0.1081,0.0,1.0e-3*-0.2161,0.0,1.0e-3*0.1081}; //Denominator Coefficients
+float num[] = {1,
+-3.287,
+4.687,
+-3.2627,
+0.984}; //Denominator Coefficients
  
-float num[] = {1.0000,-2.4336,3.4511,-2.3978,0.9708}; //Numerator Coefficients
+float den[] = {0.0000475,
+0,
+-0.000095,
+0,
+0.0000475}; //Numerator Coefficients
  
  
 float x[n],y[n], y_n, s[10];     // Space to hold previous samples and outputs; n'th order filter will require upto n samples buffered
  
-float threshold_val = 0.2; // Threshold value. Anything higher than the threshold will turn the LED off, anything lower will turn the LED on
+float threshold_val = 0.25; // Threshold value. Anything higher than the threshold will turn the LED off, anything lower will turn the LED on
  
 // time between samples Ts = 1/Fs. If Fs = 3000 Hz, Ts=333 us
-int Ts = 333;
+int Ts = 222;
  
 void setup()
 {
