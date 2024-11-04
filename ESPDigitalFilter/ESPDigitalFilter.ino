@@ -63,7 +63,7 @@ void sendEmail(const char* recipientName, const char* recipientEmail, const char
 
 String getFormattedTimestamp() {
   struct tm timeinfo;
-  if (!getLocalTime(&timeinfo)) {
+  if (!getCurrentTime(&timeinfo)) {
     Serial.println("Failed to obtain time");
     return "00:00 AM on 01/01/2024"; // Default value
   }
