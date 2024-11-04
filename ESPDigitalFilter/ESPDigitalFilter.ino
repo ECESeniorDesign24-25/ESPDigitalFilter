@@ -1,3 +1,5 @@
+#include "hysteresis.h"
+
 // A digital frequency selective filter
 // A. Kruger, 2019
 // revised R. Mudumbai, 2020 & 2024
@@ -15,11 +17,7 @@ float num[] = {1,
 -3.2627,
 0.984}; //Denominator Coefficients
  
-float den[] = {0.0000475,
-0,
--0.000095,
-0,
-0.0000475}; //Numerator Coefficients
+float den[] = {0.0000475, 0, -0.000095, 0, 0.0000475}; //Numerator Coefficients
  
  
 float x[n],y[n], y_n, s[10];     // Space to hold previous samples and outputs; n'th order filter will require upto n samples buffered
@@ -89,23 +87,15 @@ void loop()
  
       s[0] = abs(2*y_n);  // Absolute value of the filter output.
  
-      // SAMPLE Hystersis: Take the max of the past 10 samples and compare that with the threshold
-      float maxs = 0;
-      for(int i = 0; i< m; i++)
-      {
-        if (s[i]>maxs)
-          maxs = s[i];
-      }
- 
- 
+      float output = hysteresis(s, m);
      
       // Check the output value against the threshold value every 10^6 microseconds or 1 second
       if ((micros()-changet) > 1000e3)
       {
-        Serial.println(maxs);
+        Serial.println(output);
  
         changet = micros();
-        if(maxs < threshold_val)
+        if(output < threshold_val)
         {
           digitalWrite(LED, HIGH);
         }

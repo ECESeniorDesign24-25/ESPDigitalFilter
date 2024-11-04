@@ -1,0 +1,24 @@
+name: ESP Tests
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up permissions
+        run: chmod +x Tests/run_esp_tests.sh
+
+      - name: Run test script
+        run: ./Tests/run_esp_tests.sh
+
+      - name: Check test result
+        if: failure()
+        run: echo "Tests failed"
