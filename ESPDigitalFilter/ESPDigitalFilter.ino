@@ -4,99 +4,106 @@
 // A. Kruger, 2019
 // revised R. Mudumbai, 2020 & 2024
 #include <String.h>
-#include <WiFi.h>
+// #include <WiFi.h>
 #include <time.h>
 #include "Constants.h"
-#include <ESP_Mail_Client.h>
+// #include <ESP_Mail_Client.h>
 
+#ifndef cbi
+#define cbi(sfr, bit) (_SFR_BYTE(sfr) &= ~_BV(bit))
+#endif
+ 
+#ifndef sbi
+#define sbi(sfr, bit) (_SFR_BYTE(sfr) |= _BV(bit))
+#endif
 
 //////////////////////TWILIO SETUP/////////////////////
 static const char *ssid = WIFI_SSID;
 static const char *password = WIFI_PASSWORD;
 
-SMTPSession smtp;
+// SMTPSession smtp;
 
-void smtpCallback(SMTP_Status status);
+// void smtpCallback(SMTP_Status status);
 
 
-// Function to send email with a formatted message
-void sendEmail(const char* recipientName, const char* recipientEmail, const char* subject, const String &timestampFormatted) {
-  // Configure email session
-  Session_Config config;
-  config.server.host_name = SMTP_HOST;
-  config.server.port = SMTP_PORT;
-  config.login.email = AUTHOR_EMAIL;
-  config.login.password = AUTHOR_PASSWORD;
-  config.login.user_domain = "";
+// // Function to send email with a formatted message
+// void sendEmail(const char* recipientName, const char* recipientEmail, const char* subject, const String &timestampFormatted) {
+//   // Configure email session
+//   Session_Config config;
+//   config.server.host_name = SMTP_HOST;
+//   config.server.port = SMTP_PORT;
+//   config.login.email = AUTHOR_EMAIL;
+//   config.login.password = AUTHOR_PASSWORD;
+//   config.login.user_domain = "";
 
-  config.time.ntp_server = F("pool.ntp.org,time.nist.gov");
-  config.time.gmt_offset = -6; // Central Time
-  config.time.day_light_offset = 1; // 1-hour DST offset
+//   config.time.ntp_server = F("pool.ntp.org,time.nist.gov");
+//   config.time.gmt_offset = -6; // Central Time
+//   config.time.day_light_offset = 1; // 1-hour DST offset
 
-  // Create email message
-  SMTP_Message message;
-  message.sender.name = F("ESP");
-  message.sender.email = AUTHOR_EMAIL;
-  message.subject = subject;
-  message.addRecipient(recipientName, recipientEmail);
+//   // Create email message
+//   SMTP_Message message;
+//   message.sender.name = F("ESP");
+//   message.sender.email = AUTHOR_EMAIL;
+//   message.subject = subject;
+//   message.addRecipient(recipientName, recipientEmail);
 
-  // Format the message content
-  String formattedMessage = "Critical Safety Event at ";
-  formattedMessage += timestampFormatted;
-  message.text.content = formattedMessage.c_str();
-  message.text.charSet = "us-ascii";
-  message.text.transfer_encoding = Content_Transfer_Encoding::enc_7bit;
+//   // Format the message content
+//   String formattedMessage = "Critical Safety Event at ";
+//   formattedMessage += timestampFormatted;
+//   message.text.content = formattedMessage.c_str();
+//   message.text.charSet = "us-ascii";
+//   message.text.transfer_encoding = Content_Transfer_Encoding::enc_7bit;
 
-  message.priority = esp_mail_smtp_priority::esp_mail_smtp_priority_high;
-  message.response.notify = esp_mail_smtp_notify_success | esp_mail_smtp_notify_failure | esp_mail_smtp_notify_delay;
+//   message.priority = esp_mail_smtp_priority::esp_mail_smtp_priority_high;
+//   message.response.notify = esp_mail_smtp_notify_success | esp_mail_smtp_notify_failure | esp_mail_smtp_notify_delay;
 
-  // Connect and send email
-  if (!smtp.connect(&config)) {
-    ESP_MAIL_PRINTF("Connection error, Status Code: %d, Error Code: %d, Reason: %s", smtp.statusCode(), smtp.errorCode(), smtp.errorReason().c_str());
-    return;
-  }
+//   // Connect and send email
+//   if (!smtp.connect(&config)) {
+//     ESP_MAIL_PRINTF("Connection error, Status Code: %d, Error Code: %d, Reason: %s", smtp.statusCode(), smtp.errorCode(), smtp.errorReason().c_str());
+//     return;
+//   }
 
-  if (!MailClient.sendMail(&smtp, &message)) {
-    ESP_MAIL_PRINTF("Error, Status Code: %d, Error Code: %d, Reason: %s", smtp.statusCode(), smtp.errorCode(), smtp.errorReason().c_str());
-  }
-}
+//   if (!MailClient.sendMail(&smtp, &message)) {
+//     ESP_MAIL_PRINTF("Error, Status Code: %d, Error Code: %d, Reason: %s", smtp.statusCode(), smtp.errorCode(), smtp.errorReason().c_str());
+//   }
+// }
 
-String getFormattedTimestamp() {
-  struct tm timeinfo;
-  if (!getCurrentTime(&timeinfo)) {
-    Serial.println("Failed to obtain time");
-    return "00:00 AM on 01/01/2024"; // Default value
-  }
+// String getFormattedTimestamp() {
+//   struct tm timeinfo;
+//   if (!getCurrentTime(&timeinfo)) {
+//     Serial.println("Failed to obtain time");
+//     return "00:00 AM on 01/01/2024"; // Default value
+//   }
 
-  int hour = timeinfo.tm_hour % 12;
-  if (hour == 0) hour = 12;  // handle midnight and noon cases
-  int minute = timeinfo.tm_min;
-  bool isPM = timeinfo.tm_hour >= 12;
+//   int hour = timeinfo.tm_hour % 12;
+//   if (hour == 0) hour = 12;  // handle midnight and noon cases
+//   int minute = timeinfo.tm_min;
+//   bool isPM = timeinfo.tm_hour >= 12;
 
-  char buffer[30];
-  snprintf(buffer, sizeof(buffer), "%02d:%02d %s on %02d/%02d/%04d",
-           hour, minute, isPM ? "PM" : "AM",
-           timeinfo.tm_mon + 1, timeinfo.tm_mday, timeinfo.tm_year + 1900);
+//   char buffer[30];
+//   snprintf(buffer, sizeof(buffer), "%02d:%02d %s on %02d/%02d/%04d",
+//            hour, minute, isPM ? "PM" : "AM",
+//            timeinfo.tm_mon + 1, timeinfo.tm_mday, timeinfo.tm_year + 1900);
 
-  return String(buffer);
-}
+//   return String(buffer);
+// }
 
-bool getCurrentTime(struct tm *timeinfo) {
-  const int maxRetries = 10;
-  int retryCount = 0;
+// bool getCurrentTime(struct tm *timeinfo) {
+//   const int maxRetries = 10;
+//   int retryCount = 0;
 
-  while (!getLocalTime(timeinfo) && retryCount < maxRetries) {
-    Serial.println("Waiting for NTP time sync...");
-    delay(1000);  // Wait 1 second before retrying
-    retryCount++;
-  }
+//   while (!getLocalTime(timeinfo) && retryCount < maxRetries) {
+//     Serial.println("Waiting for NTP time sync...");
+//     delay(1000);  // Wait 1 second before retrying
+//     retryCount++;
+//   }
 
-  return retryCount < maxRetries; // Returns true if successful, false if it timed out
-}
+//   return retryCount < maxRetries; // Returns true if successful, false if it timed out
+// }
 
 //////////////////////////////////////////////////////// 
 
-int analogPin = 35;     // Specify analog input pin. Make sure to keep between 0 and 5V.
+int analogPin = A0;     // Specify analog input pin. Make sure to keep between 0 and 5V.
 int LED = 33;           // Specify output analog pin with indicator LED
  
 const int n = 4;   // number of past input and output samples to buffer; change this to match order of your filter
@@ -122,28 +129,33 @@ bool message_sent = false;
  
 void setup()
 {
-  Serial.begin(115200);
+  Serial.begin(1200);
   int i;
 
-  MailClient.networkReconnect(true);
+  // MailClient.networkReconnect(true);
 
-  smtp.debug(1);
+  // smtp.debug(1);
 
-  /* Set the callback function to get the sending results */
-  smtp.callback(smtpCallback);
+  // /* Set the callback function to get the sending results */
+  // smtp.callback(smtpCallback);
 
   /* Declare the Session_Config for user defined session credentials */
-  Session_Config config;
+  // Session_Config config;
 
-  /* Set the session config */
-  config.server.host_name = SMTP_HOST;
-  config.server.port = SMTP_PORT;
-  config.login.email = AUTHOR_EMAIL;
-  config.login.password = AUTHOR_PASSWORD;
-  config.login.user_domain = "";
+  // /* Set the session config */
+  // config.server.host_name = SMTP_HOST;
+  // config.server.port = SMTP_PORT;
+  // config.login.email = AUTHOR_EMAIL;
+  // config.login.password = AUTHOR_PASSWORD;
+  // config.login.user_domain = "";
 
-  configTime(-6 * 3600, 3600, "pool.ntp.org", "time.nist.gov"); // UTC-6 for Standard, 1-hour DST adjustment
+  // configTime(-6 * 3600, 3600, "pool.ntp.org", "time.nist.gov"); // UTC-6 for Standard, 1-hour DST adjustment
   delay(10000); // Wait a moment for time to sync
+
+
+  sbi(ADCSRA,ADPS2);     // Next three lines make the ADC run faster
+  cbi(ADCSRA,ADPS1);
+  cbi(ADCSRA,ADPS0);
 
   pinMode(LED,OUTPUT);   // Makes the LED pin an output
  
@@ -154,21 +166,21 @@ void setup()
     s[i] = 0;
   y_n = 0;
 
-  Serial.print("Connecting to WiFi network ;");
-  Serial.print(ssid);
-  Serial.println("'...");
-  WiFi.begin(ssid, password);
-  Serial.println(WiFi.localIP());
+  // Serial.print("Connecting to WiFi network ;");
+  // Serial.print(ssid);
+  // Serial.println("'...");
+  // WiFi.begin(ssid, password);
+  // Serial.println(WiFi.localIP());
 
-  while (WiFi.status() != WL_CONNECTED) {
-    Serial.println("Connecting...");
-    delay(500);
-  }
-  Serial.println("Connected!");
+  // while (WiFi.status() != WL_CONNECTED) {
+  //   Serial.println("Connecting...");
+  //   delay(500);
+  // }
+  // Serial.println("Connected!");
 
-  // Example usage of sendEmail function
-  String formattedTime = getFormattedTimestamp();
-  sendEmail("Recipient Name", RECIPIENT_EMAIL, "Critical Safety Alert", formattedTime);
+  // // Example usage of sendEmail function
+  // String formattedTime = getFormattedTimestamp();
+  // sendEmail("Recipient Name", RECIPIENT_EMAIL, "Critical Safety Alert", formattedTime);
 }
  
  
@@ -195,9 +207,8 @@ void loop()
          s[i] = s[i-1];
       }
       val = analogRead(analogPin);  // New input
- 
-      x[0] = val*(3.3/4095.00)-1.65;  // Scale to match ADC resolution and range
- 
+
+      x[0] = val*(5.0/1023.0)-2.5;  // Scale to match ADC resolution and range 
       y_n = num[0] * x[0];
      
       for(i=1;i<n;i++)             // Incorporate previous outputs (y[n])
@@ -214,7 +225,7 @@ void loop()
       //       - etc.
  
       s[0] = abs(2*y_n);  // Absolute value of the filter output.
- 
+
       float output = hysteresis(s, m);
      
       // Check the output value against the threshold value every 10^6 microseconds or 1 second
@@ -261,48 +272,48 @@ void loop()
 }
 
 
-/* Callback function to get the Email sending status */
-void smtpCallback(SMTP_Status status){
-  /* Print the current status */
-  Serial.println(status.info());
+// /* Callback function to get the Email sending status */
+// void smtpCallback(SMTP_Status status){
+//   /* Print the current status */
+//   Serial.println(status.info());
 
-  if (status.success()) {
-    Serial.println("Email sent successfully.");
-  } else {
-    Serial.println("Email sending failed.");
-  }
+//   if (status.success()) {
+//     Serial.println("Email sent successfully.");
+//   } else {
+//     Serial.println("Email sending failed.");
+//   }
 
-  /* Print the sending result */
-  if (status.success()){
-    // ESP_MAIL_PRINTF used in the examples is for format printing via debug Serial port
-    // that works for all supported Arduino platform SDKs e.g. AVR, SAMD, ESP32 and ESP8266.
-    // In ESP8266 and ESP32, you can use Serial.printf directly.
+//   /* Print the sending result */
+//   if (status.success()){
+//     // ESP_MAIL_PRINTF used in the examples is for format printing via debug Serial port
+//     // that works for all supported Arduino platform SDKs e.g. AVR, SAMD, ESP32 and ESP8266.
+//     // In ESP8266 and ESP32, you can use Serial.printf directly.
 
-    Serial.println("----------------");
-    ESP_MAIL_PRINTF("Message sent success: %d\n", status.completedCount());
-    ESP_MAIL_PRINTF("Message sent failed: %d\n", status.failedCount());
-    Serial.println("----------------\n");
+//     Serial.println("----------------");
+//     ESP_MAIL_PRINTF("Message sent success: %d\n", status.completedCount());
+//     ESP_MAIL_PRINTF("Message sent failed: %d\n", status.failedCount());
+//     Serial.println("----------------\n");
 
-    for (size_t i = 0; i < smtp.sendingResult.size(); i++)
-    {
-      /* Get the result item */
-      SMTP_Result result = smtp.sendingResult.getItem(i);
+//     for (size_t i = 0; i < smtp.sendingResult.size(); i++)
+//     {
+//       /* Get the result item */
+//       SMTP_Result result = smtp.sendingResult.getItem(i);
 
-      // In case, ESP32, ESP8266 and SAMD device, the timestamp get from result.timestamp should be valid if
-      // your device time was synched with NTP server.
-      // Other devices may show invalid timestamp as the device time was not set i.e. it will show Jan 1, 1970.
-      // You can call smtp.setSystemTime(xxx) to set device time manually. Where xxx is timestamp (seconds since Jan 1, 1970)
+//       // In case, ESP32, ESP8266 and SAMD device, the timestamp get from result.timestamp should be valid if
+//       // your device time was synched with NTP server.
+//       // Other devices may show invalid timestamp as the device time was not set i.e. it will show Jan 1, 1970.
+//       // You can call smtp.setSystemTime(xxx) to set device time manually. Where xxx is timestamp (seconds since Jan 1, 1970)
       
-      ESP_MAIL_PRINTF("Message No: %d\n", i + 1);
-      ESP_MAIL_PRINTF("Status: %s\n", result.completed ? "success" : "failed");
-      ESP_MAIL_PRINTF("Date/Time: %s\n", MailClient.Time.getDateTimeString(result.timestamp, "%B %d, %Y %H:%M:%S").c_str());
-      ESP_MAIL_PRINTF("Recipient: %s\n", result.recipients.c_str());
-      ESP_MAIL_PRINTF("Subject: %s\n", result.subject.c_str());
-    }
-    Serial.println("----------------\n");
+//       ESP_MAIL_PRINTF("Message No: %d\n", i + 1);
+//       ESP_MAIL_PRINTF("Status: %s\n", result.completed ? "success" : "failed");
+//       ESP_MAIL_PRINTF("Date/Time: %s\n", MailClient.Time.getDateTimeString(result.timestamp, "%B %d, %Y %H:%M:%S").c_str());
+//       ESP_MAIL_PRINTF("Recipient: %s\n", result.recipients.c_str());
+//       ESP_MAIL_PRINTF("Subject: %s\n", result.subject.c_str());
+//     }
+//     Serial.println("----------------\n");
 
-    // You need to clear sending result as the memory usage will grow up.
-    smtp.sendingResult.clear();
-  }
-}
+//     // You need to clear sending result as the memory usage will grow up.
+//     smtp.sendingResult.clear();
+//   }
+// }
 
