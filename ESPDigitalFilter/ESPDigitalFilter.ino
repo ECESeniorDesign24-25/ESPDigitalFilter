@@ -13,7 +13,7 @@
 //////////////////////TWILIO SETUP/////////////////////
 static const char *ssid = WIFI_SSID;
 static const char *password = WIFI_PASSWORD;
-
+static const char *username = WIFI_USERNAME;
 SMTPSession smtp;
 
 void smtpCallback(SMTP_Status status);
@@ -154,21 +154,25 @@ void setup()
     s[i] = 0;
   y_n = 0;
 
-  Serial.print("Connecting to WiFi network ;");
-  Serial.print(ssid);
-  Serial.println("'...");
-  WiFi.begin(ssid, password);
-  Serial.println(WiFi.localIP());
+  // Serial.print("Connecting to WiFi network ;");
+  // if (strcmp(WIFI_USERNAME, "") != 0) {
+  //   WiFi.mode(WIFI_MODE_STA);
+  //   WiFi.begin(ssid, WPA2_AUTH_PEAP, username, username, password);
+  // } else {
+  //   WiFi.begin(ssid, password);
+  // }
+  // Serial.println("'...");
+  // Serial.println(WiFi.localIP());
 
-  while (WiFi.status() != WL_CONNECTED) {
-    Serial.println("Connecting...");
-    delay(500);
-  }
-  Serial.println("Connected!");
+  // while (WiFi.status() != WL_CONNECTED) {
+  //   Serial.println("Connecting...");
+  //   delay(500);
+  // }
+  // Serial.println("Connected!");
 
-  // Example usage of sendEmail function
-  String formattedTime = getFormattedTimestamp();
-  sendEmail("Recipient Name", RECIPIENT_EMAIL, "Critical Safety Alert", formattedTime);
+  // // Example usage of sendEmail function
+  // String formattedTime = getFormattedTimestamp();
+  // sendEmail("Recipient Name", RECIPIENT_EMAIL, "Critical Safety Alert", formattedTime);
 }
  
  

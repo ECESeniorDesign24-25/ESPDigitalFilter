@@ -6,6 +6,7 @@ float hysteresis(float arr[], int m) {
     for(int i = 0; i< m; i++)
     {
         sum += arr[i];
+        Serial.printf("Value: %d", arr[i])
     }
     return sum/m;
 }
