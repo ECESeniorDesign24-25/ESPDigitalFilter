@@ -106,13 +106,10 @@ void loop()
 
           if (numSent == 0) {
             String response;
-            bool success = send_message(to_NUMber, from_NUMber, message, response);
-              if (success) {
-                Serial.println("Sent message successfully!");
-              } else {
-                Serial.println(response);
-              }
-              delay(5000);
+            Serial.println("Sending message");
+            sendEmail(smtp, "Joseph Krueger", "josephkrueger242@gmail.com", "Test", getFormattedTimestamp());
+            Serial.println("Message sent");
+            delay(5000);
           }
           numSent++;
         }

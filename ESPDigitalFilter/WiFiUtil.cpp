@@ -2,7 +2,7 @@
 
 //==================================================================================================
 bool connectToWiFi() {
-  WiFi.begin(ssid, password);
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
   Serial.print("Connecting to WiFi");
   float currTime = millis();
   while (WiFi.status() != WL_CONNECTED) {

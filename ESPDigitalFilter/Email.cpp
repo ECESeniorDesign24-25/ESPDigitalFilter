@@ -18,7 +18,7 @@ void initSMTP(SMTPSession &smtp, Session_Config &config) {
 }
 
 //==================================================================================================
-void sendEmail(const char* recipientName, const char* recipientEmail, const char* subject, const String &timestampFormatted) {
+void sendEmail(SMTPSession &smtp, const char* recipientName, const char* recipientEmail, const char* subject, const String &timestampFormatted) {
   // Configure email session
   Session_Config config;
   config.server.host_name = SMTP_HOST;
