@@ -12,22 +12,22 @@
 #include <ESP_Mail_Client.h>
 #include "WiFiUtil.h"
 
-EmailClient emailClient;
+// EmailClient emailClient;
 
 int ADC_PIN = 35;    
 int LED = 33;     
  
-const int ORDER = 8;
+const int ORDER = 7;
 const int SAMPLES = 10;
-float THRESHOLD = 0.25; 
+float THRESHOLD = 0.5; 
 float UPDATE_TIME = 1000e3;
 
-float NUM[] = {0.000001357,         0,   -0.000005430,         0,    0.000008144,        0,   -0.000005430,        0,    0.000001357};
-float DEN[] = {1.0000,   -6.4543,  19.4422,  -35.3000,   42.1002,  -33.7258,   17.7467,   -5.6288,    0.8332};
+float DEN[] = {1.0000,   -3.7012,    7.5244,   -9.1780,    7.4215,   -3.6007,    0.9595};
+float NUM[] = {0.0003104,   -0.0007602,    0.0007647,         0,   -0.0007647,    0.0007602,   -0.0003104};
  
 float x[ORDER],y[ORDER], y_n, s[SAMPLES];    
  
-int Ts = 222; // 4500 Hz sampling rate
+int Ts = 333; // 4500 Hz sampling rate
 bool MESSAGE_SENT = false;
 int BAUD_RATE = 115200;
 
@@ -41,9 +41,12 @@ float scaleADC(int val) {
 //==================================================================================================
 void setup()
 {
+  Serial.println("Initializing ESP...");
   Serial.begin(BAUD_RATE);  
   pinMode(LED,OUTPUT);  
-  ONLINE = connectToWiFi();
+
+  Serial.println("Attempting WiFi Connection...");
+  // ONLINE = connectToWiFi();
 
   int i;
   for (i=0; i<ORDER; i++)
@@ -80,18 +83,22 @@ void loop()
       y_n = NUM[0] * x[0];
      
       // Difference equation 
-      for(i=1;i<ORDER;i++)         
+      for(i=1;i<ORDER;i++)       
          y_n = y_n - DEN[i]* y[i] + NUM[i] * x[i];          
-    
+
+      
       y[0] = y_n;             
       s[0] = abs(2*y_n);
-      float output = hysteresis(s, SAMPLES);
+
+      float output = hysteresis_avg(s, SAMPLES);
      
       // update every second
       if ((micros()-changet) > UPDATE_TIME)
       {
+        Serial.println("=========");
         Serial.println(output);
- 
+        Serial.println(s[0]);
+        Serial.println(x[0]);
         changet = micros();
         if(output < THRESHOLD)
         {
@@ -100,7 +107,7 @@ void loop()
           if (numSent == 0 && ONLINE) {
             String response;
             Serial.println("Sending message");
-            emailClient.sendEmail("Joseph Krueger", "josephkrueger242@gmail.com", "Test", getFormattedTimestamp());
+            // emailClient.sendEmail("Joseph Krueger", "josephkrueger242@gmail.com", "Test", getFormattedTimestamp());
             Serial.println("Message sent");
             delay(5000);
           }
