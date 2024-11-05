@@ -24,7 +24,7 @@ int LED = 33;
  
 const int ORDER = 8;
 int HYSTERESIS_SAMPLES = 10;
- float THRESHOLD = 0.25; 
+float THRESHOLD = 0.25; 
 
 float NUM[] = {0.000001357,         0,   -0.000005430,         0,    0.000008144,        0,   -0.000005430,        0,    0.000001357}
 float DEN[] = {1.0000,   -6.4543,  19.4422,  -35.3000,   42.1002,  -33.7258,   17.7467,   -5.6288,    0.8332};
