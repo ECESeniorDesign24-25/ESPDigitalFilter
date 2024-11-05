@@ -1,13 +1,13 @@
-fs = 4500;       
-f1 = 425;             
-f2 = 435;             
-Wp = [f1, f2] / (fs / 2); 
-n = 2;                 
-ripple = 1;           
+fs = 4500; % Sampling frequency (Hz)
+f0 = 430; % Target center frequency (Hz)
+bandwidth = 50;
+filter_order = 4; 
 
-[num, den] = cheby1(n, ripple, Wp, 'bandpass');
+Wn = [(f0 - bandwidth/2) (f0 + bandwidth/2)] / (fs/2);
 
-disp('num:');
-disp(num);
-disp('den:');
-disp(den);
+[x, y] = butter(filter_order, Wn, 'bandpass');
+
+disp('Numerator coeffs.:');
+disp(x);
+disp('Denominator coeffs.:');
+disp(y);
