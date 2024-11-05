@@ -17,15 +17,15 @@
 int ADC_PIN = 35;    
 int LED = 33;     
  
-const int ORDER = 7;
+const int N_COEFFS = 7;
 const int SAMPLES = 10;
 float THRESHOLD = 0.5; 
 float UPDATE_TIME = 1000e3;
 
-float DEN[] = {1.0000,   -2.4455,   3.3789,   -2.3095,    0.8921};
-float NUM[] = {0.0120,  -0.0238,   0.0287,   -0.0238,    0.0120};
+float NUM[] = {0.0035,   -0.0087,    0.0087,         0,   -0.0087,    0.0087,   -0.0035}; 
+float DEN[] = {1.0000,   -3.7114,    7.4848,   -9.0596,    7.2336,   -3.4664,    0.9026}; 
  
-float x[ORDER],y[ORDER], y_n, s[SAMPLES];    
+float x[N_COEFFS],y[N_COEFFS], y_n, s[SAMPLES];    
  
 int Ts = 333; // 4500 Hz sampling rate
 bool MESSAGE_SENT = false;
@@ -49,7 +49,7 @@ void setup()
   // ONLINE = connectToWiFi();
 
   int i;
-  for (i=0; i<ORDER; i++)
+  for (i=0; i<N_COEFFS; i++)
     x[i] = y[i] = 0;
  
   for(i = 0; i<SAMPLES; i++)
@@ -69,7 +69,7 @@ void loop()
    while (1) {
       t1 = micros();
 
-      for(i=ORDER-1; i>0; i--){  
+      for(i=N_COEFFS-1; i>0; i--){  
          x[i] = x[i-1];                                            
          y[i] = y[i-1];
       }
@@ -83,7 +83,7 @@ void loop()
       y_n = NUM[0] * x[0];
      
       // Difference equation 
-      for(i=1;i<ORDER;i++)       
+      for(i=1;i<N_COEFFS;i++)       
          y_n = y_n - DEN[i]* y[i] + NUM[i] * x[i];          
 
       
