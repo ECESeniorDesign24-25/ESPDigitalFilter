@@ -22,8 +22,8 @@ const int SAMPLES = 10;
 float THRESHOLD = 0.5; 
 float UPDATE_TIME = 1000e3;
 
-float DEN[] = {1.0000,   -3.7012,    7.5244,   -9.1780,    7.4215,   -3.6007,    0.9595};
-float NUM[] = {0.0003104,   -0.0007602,    0.0007647,         0,   -0.0007647,    0.0007602,   -0.0003104};
+float DEN[] = {1.0000,   -2.4455,   3.3789,   -2.3095,    0.8921};
+float NUM[] = {0.0120,  -0.0238,   0.0287,   -0.0238,    0.0120};
  
 float x[ORDER],y[ORDER], y_n, s[SAMPLES];    
  
@@ -95,10 +95,7 @@ void loop()
       // update every second
       if ((micros()-changet) > UPDATE_TIME)
       {
-        Serial.println("=========");
         Serial.println(output);
-        Serial.println(s[0]);
-        Serial.println(x[0]);
         changet = micros();
         if(output < THRESHOLD)
         {
