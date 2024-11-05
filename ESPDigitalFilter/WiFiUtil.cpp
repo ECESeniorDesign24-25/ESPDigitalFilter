@@ -2,17 +2,23 @@
 
 //==================================================================================================
 bool connectToWiFi() {
-  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-  Serial.print("Connecting to WiFi");
-  float currTime = millis();
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-    if (millis() - currTime > 10000) {
-      Serial.println("Failed to connect to WiFi");
-      return false;
+    Serial.printf("\nAttempting to connect to %s...\n", WIFI_SSID);
+    if (strcmp(WIFI_USERNAME, "") != 0) { // enterprise network (eduroam)
+        WiFi.mode(WIFI_MODE_STA);
+        WiFi.begin(WIFI_SSID, WPA2_AUTH_PEAP, WIFI_USERNAME, WIFI_USERNAME, WIFI_PASSWORD);
     }
-  }
-  Serial.println("Connected to WiFi");
-  return true;
+    else { // personal network
+        WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+    }
+
+    unsigned long startTime = millis();
+    while (WiFi.status() != WL_CONNECTED) {
+        delay(500);
+        Serial.print(F("."));
+        if (millis() - startTime > 30000) {
+        Serial.printf("\nUnable to connect to %s. Verify your ssid/username/password.", WIFI_SSID);
+        return false;
+        }
+    }
+    return true;
 }
