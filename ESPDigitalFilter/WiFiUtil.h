@@ -3,6 +3,6 @@
 #include "Constants.h"
 #include <WiFi.h>
 
-bool connectToWiFi();
+bool connectToWifi();
 
 #endif

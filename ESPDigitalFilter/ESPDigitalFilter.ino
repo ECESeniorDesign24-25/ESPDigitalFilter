@@ -53,6 +53,7 @@ void setup()
     x[i] = y[i] = 0;
  
   for(i = 0; i<SAMPLES; i++)
+  for(i = 0; i<SAMPLES; i++)
     s[i] = 0;
   y_n = 0;
 }
@@ -75,8 +76,10 @@ void loop()
       }
      
       for(i=SAMPLES-1; i>0; i--){       
+      for(i=SAMPLES-1; i>0; i--){       
          s[i] = s[i-1];
       }
+
 
       val = analogRead(ADC_PIN);  // New input
       x[0] = scaleADC(val);  // Scale to match ADC resolution and range
