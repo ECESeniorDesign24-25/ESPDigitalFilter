@@ -12,18 +12,18 @@
 #include <ESP_Mail_Client.h>
 #include "WiFiUtil.h"
 
-EmailClient emailClient;
+// EmailClient emailClient;
 
 int ADC_PIN = 35;    
 int LED = 33;     
  
-const int N_COEFFS = 7;
-const int SAMPLES = 10;
-float THRESHOLD = 0.5; 
+const int N_COEFFS = 5 ;
+const int SAMPLES = 20;
+float THRESHOLD = 0.2; 
 float UPDATE_TIME = 1000e3;
 
-float NUM[] = {0.0035,   -0.0087,    0.0087,         0,   -0.0087,    0.0087,   -0.0035}; 
-float DEN[] = {1.0000,   -3.7114,    7.4848,   -9.0596,    7.2336,   -3.4664,    0.9026}; 
+float NUM[] = {0.0103  , -0.0241  ,  0.0332   ,-0.0241   , 0.0103}; 
+float DEN[] = {1.0000 ,  -2.4477 ,   3.4382 ,  -2.3761  ,  0.9423}; 
  
 float x[N_COEFFS],y[N_COEFFS], y_n, s[SAMPLES];    
  
@@ -35,7 +35,8 @@ bool ONLINE = false;
 
 //==================================================================================================
 float scaleADC(int val) {
-  return val * (3.3 / 4095.00) - 1.65;
+  // return val * (3.3 / 4095.00) - 1.65;
+  return val*(5.0/1023.0)-2.5;
 }
 
 //==================================================================================================
@@ -47,20 +48,20 @@ void setup()
   pinMode(LED,OUTPUT);  
 
   Serial.println("Attempting WiFi Connection...");
-  ONLINE = connectToWiFi();
+  // ONLINE = connectToWiFi();
 
   configTime(-6 * 3600, 3600, "pool.ntp.org", "time.nist.gov"); // UTC-6 for Standard, 1-hour DST adjustment
   delay(2000); 
 
 
-  int i;
-  for (i=0; i<N_COEFFS; i++)
-    x[i] = y[i] = 0;
+  // int i;
+  // for (i=0; i<N_COEFFS; i++)
+  //   x[i] = y[i] = 0;
  
-  for(i = 0; i<SAMPLES; i++)
-  for(i = 0; i<SAMPLES; i++)
-    s[i] = 0;
-  y_n = 0;
+  // for(i = 0; i<SAMPLES; i++)
+  // for(i = 0; i<SAMPLES; i++)
+  //   s[i] = 0;
+  // y_n = 0;
 }
 
 //==================================================================================================
@@ -72,6 +73,8 @@ void loop()
    float changet = micros();
  
    int numSent = 0;
+
+   
    while (1) {
       t1 = micros();
 
@@ -80,7 +83,7 @@ void loop()
          y[i] = y[i-1];
       }
      
-      for(i=SAMPLES-1; i>0; i--)    
+      // for(i=SAMPLES-1; i>0; i--)    
       for(i=SAMPLES-1; i>0; i--){       
          s[i] = s[i-1];
       }
@@ -113,9 +116,9 @@ void loop()
           if (numSent == 0 && ONLINE) {
             String response;
             Serial.println("Sending message");
-            emailClient.sendEmail("Cavan Riley", "rileycavan93@gmail.com", "Alert", getFormattedTimestamp());
+            // emailClient.sendEmail("Cavan Riley", "rileycavan93@gmail.com", "Alert", getFormattedTimestamp());
             Serial.println("Message sent");
-            delay(5000);
+            delay(2000);
           }
           numSent++;
         }
