@@ -8,11 +8,11 @@
 #include "Constants.h"
 #include "Email.h"
 #include "TimeUtil.h"
-#include "Hysteresis.h"
+#include "hysteresis.h"
 #include <ESP_Mail_Client.h>
 #include "WiFiUtil.h"
 
-// EmailClient emailClient;
+EmailClient emailClient;
 
 int ADC_PIN = 35;    
 int LED = 33;     
@@ -41,12 +41,17 @@ float scaleADC(int val) {
 //==================================================================================================
 void setup()
 {
+  Serial.begin(BAUD_RATE);  
   Serial.println("Initializing ESP...");
   Serial.begin(BAUD_RATE);  
   pinMode(LED,OUTPUT);  
 
   Serial.println("Attempting WiFi Connection...");
-  // ONLINE = connectToWiFi();
+  ONLINE = connectToWiFi();
+
+  configTime(-6 * 3600, 3600, "pool.ntp.org", "time.nist.gov"); // UTC-6 for Standard, 1-hour DST adjustment
+  delay(2000); 
+
 
   int i;
   for (i=0; i<N_COEFFS; i++)
@@ -75,7 +80,7 @@ void loop()
          y[i] = y[i-1];
       }
      
-      for(i=SAMPLES-1; i>0; i--){       
+      for(i=SAMPLES-1; i>0; i--)    
       for(i=SAMPLES-1; i>0; i--){       
          s[i] = s[i-1];
       }
@@ -83,6 +88,7 @@ void loop()
 
       val = analogRead(ADC_PIN);  // New input
       x[0] = scaleADC(val);  // Scale to match ADC resolution and range
+
       y_n = NUM[0] * x[0];
      
       // Difference equation 
@@ -107,7 +113,7 @@ void loop()
           if (numSent == 0 && ONLINE) {
             String response;
             Serial.println("Sending message");
-            // emailClient.sendEmail("Joseph Krueger", "josephkrueger242@gmail.com", "Test", getFormattedTimestamp());
+            emailClient.sendEmail("Cavan Riley", "rileycavan93@gmail.com", "Alert", getFormattedTimestamp());
             Serial.println("Message sent");
             delay(5000);
           }
@@ -127,6 +133,6 @@ void loop()
       }
       while((micros()-t1) < Ts);  
    }
- 
+   
 }
 

@@ -13,8 +13,8 @@ EmailClient::EmailClient() {
     config.login.password = AUTHOR_PASSWORD;
     config.login.user_domain = "";
 
-    configTime(-6 * 3600, 3600, "pool.ntp.org", "time.nist.gov"); // UTC-6 for Standard, 1-hour DST adjustment
-    delay(10000); 
+    // configTime(-6 * 3600, 3600, "pool.ntp.org", "time.nist.gov"); // UTC-6 for Standard, 1-hour DST adjustment
+    // delay(2000); 
 }
 
 //==================================================================================================
