@@ -10,14 +10,18 @@
 #include "TimeUtil.h"
 #include "hysteresis.h"
 #include <ESP_Mail_Client.h>
-#include "WiFiUtil.h"
+// #include "WiFiUtil.h"
 
-// EmailClient emailClient;
+EmailClient emailClient;
+
+const char* ssid = WIFI_SSID;
+const char* username = WIFI_USERNAME;
+const char* password = WIFI_PASSWORD;
 
 int ADC_PIN = 35;    
 int LED = 33;     
  
-const int N_COEFFS = 5 ;
+const int N_COEFFS = 5;
 const int SAMPLES = 20;
 float THRESHOLD = 0.2; 
 float UPDATE_TIME = 1000e3;
@@ -44,11 +48,31 @@ void setup()
 {
   Serial.begin(BAUD_RATE);  
   Serial.println("Initializing ESP...");
-  Serial.begin(BAUD_RATE);  
+  // Serial.begin(BAUD_RATE);  
   pinMode(LED,OUTPUT);  
 
   Serial.println("Attempting WiFi Connection...");
   // ONLINE = connectToWiFi();
+
+  Serial.printf("\nAttempting to connect to %s...\n", ssid);
+  if (strcmp(WIFI_USERNAME, "") != 0) { // enterprise network (eduroam)
+      WiFi.mode(WIFI_MODE_STA);
+      WiFi.begin(WIFI_SSID, WPA2_AUTH_PEAP, WIFI_USERNAME, WIFI_USERNAME, WIFI_PASSWORD);
+  }
+  else { // personal network
+      WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+
+  unsigned long startTime = millis();
+  while (WiFi.status() != WL_CONNECTED) {
+      delay(500);
+      Serial.print(F("."));
+      if (millis() - startTime > 30000) {
+      Serial.printf("\nUnable to connect to %s. Verify your ssid/username/password.", ssid);
+      }
+  }
+
+  ONLINE = true;
+
 
   configTime(-6 * 3600, 3600, "pool.ntp.org", "time.nist.gov"); // UTC-6 for Standard, 1-hour DST adjustment
   delay(2000); 
@@ -91,7 +115,8 @@ void loop()
 
       val = analogRead(ADC_PIN);  // New input
       x[0] = scaleADC(val);  // Scale to match ADC resolution and range
-
+      // Serial.printf("x %f\n", x[0]);
+      // Serial.printf("val %f\n", val);
       y_n = NUM[0] * x[0];
      
       // Difference equation 
@@ -114,9 +139,9 @@ void loop()
           digitalWrite(LED, HIGH);
 
           if (numSent == 0 && ONLINE) {
-            String response;
+            // String response;
             Serial.println("Sending message");
-            // emailClient.sendEmail("Cavan Riley", "rileycavan93@gmail.com", "Alert", getFormattedTimestamp());
+            emailClient.sendEmail("Cavan Riley", "rileycavan93@gmail.com", "Alert", getFormattedTimestamp());
             Serial.println("Message sent");
             delay(2000);
           }
