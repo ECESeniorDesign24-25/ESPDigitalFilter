@@ -23,7 +23,7 @@ int LED = 33;
  
 const int N_COEFFS = 5;
 const int SAMPLES = 20;
-float THRESHOLD = 0.2; 
+float THRESHOLD = 0.15; 
 float UPDATE_TIME = 1000e3;
 
 float NUM[] = {0.0103  , -0.0241  ,  0.0332   ,-0.0241   , 0.0103}; 
@@ -61,6 +61,7 @@ void setup()
   }
   else { // personal network
       WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  }
 
   unsigned long startTime = millis();
   while (WiFi.status() != WL_CONNECTED) {
