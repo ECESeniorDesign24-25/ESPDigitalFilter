@@ -144,7 +144,7 @@ void loop()
             Serial.println("Sending message");
             emailClient.sendEmail("Cavan Riley", "rileycavan93@gmail.com", "Alert", getFormattedTimestamp());
             Serial.println("Message sent");
-            delay(2000);
+            // delay(2000);
           }
           numSent++;
         }
